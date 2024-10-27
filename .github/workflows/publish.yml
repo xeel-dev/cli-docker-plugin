@@ -1,0 +1,27 @@
+name: Build, Test & Publish
+permissions:
+  contents: read
+  id-token: write
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/build.yml
+  publish:
+    needs: build-and-test
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm build
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          access: public
+          provenance: true
+          token: ${{ secrets.NPM_TOKEN }}
