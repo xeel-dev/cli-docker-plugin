@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '45 8 * * *'
+    - cron: '55 8 * * *'
 permissions:
   id-token: write
   contents: read
@@ -26,6 +26,7 @@ jobs:
       - run: pnpm install
       - run: pnpm build
       - run: pnpm add @xeel-dev/cli
+      - run: npx xeel plugins install @xeel-dev/cli-npm-plugin
       - run: npx xeel plugins link
       - run: npx xeel dependency-debt report -r "$GITHUB_REPOSITORY_ID" --auth github --organization "x::org:64jlQszyh97h4u4d0IGc7J"
         env:
