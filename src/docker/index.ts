@@ -38,11 +38,11 @@ export default class DockerEcosystemSupport
         let name = entry.name.replace('Dockerfile.', '');
         // If the name is just Dockerfile, we default to the directory name
         if (name === 'Dockerfile') {
-          name = directoryPath.split('/').pop() || 'Dockerfile';
+          name = directoryPath.split('/').pop()!;
         }
 
         projects.push({
-          name,
+          name: `${name} Dockerfile`,
           path: `${directoryPath}/${entry.name}`,
           ecosystem: 'DOCKER',
           subProjects: [],
