@@ -1,6 +1,6 @@
 {
   "name": "@xeel-dev/cli-docker-plugin",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Docker ecosystem plugin for Xeel CLI",
   "license": "MIT",
   "bugs": "https://github.com/xeel-dev/cli-docker-plugin/issues",
