@@ -26,8 +26,7 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "prepack": "oclif manifest",
     "start": "./bin/dev.js",
-    "test:unit": "vitest run --config vitest.config.unit.ts",
-    "test:e2e": "node ./src/npm/package-manager/__tests__/run-e2e-setup.js && vitest run --config vitest.config.e2e.ts"
+    "prepare": "husky"
   },
   "engines": {
     "node": "20"
@@ -36,7 +35,9 @@
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
     "@types/node": "20",
-    "@xeel-dev/cli": "^0.0.12",
+    "@xeel-dev/cli": "^1.0.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.1.0",
     "shx": "^0.3.4",
@@ -60,5 +61,10 @@
       "register-ecosystem": "./dist/hooks/register-ecosystem.js"
     },
     "topicSeparator": " "
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

@@ -1,0 +1,44 @@
+name: Create Release Pull Request
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release  
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          release-type: node
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: pnpm/action-setup@v4
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: actions/setup-node@v4
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install && pnpm build
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: JS-DevTools/npm-publish@v3
+        if: ${{ steps.release.outputs.release_created }}
+        id: publish
+        with:
+          access: public
+          provenance: true
+          token: ${{ secrets.NPM_TOKEN }}
+      - name: Send release to Discord
+        if: ${{ steps.publish.outputs.type }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d "{\"content\": \"🚀 **New Release Published: [$GITHUB_REPOSITORY@${{ steps.release.outputs.tag_name }}](${{ steps.release.outputs.html_url }})**\"}" \
+            "$DISCORD_WEBHOOK_URL"
