@@ -28,7 +28,7 @@ jobs:
       - run: pnpm add @xeel-dev/cli
       - run: npx xeel plugins install @xeel-dev/cli-npm-plugin
       - run: npx xeel plugins link
-      - run: npx xeel dependency-debt report -r "$GITHUB_REPOSITORY_ID" --auth github --organization "x::org:64jlQszyh97h4u4d0IGc7J"
+      - run: npx xeel version-debt report -r "$GITHUB_REPOSITORY_ID" --auth github --organization "x::org:64jlQszyh97h4u4d0IGc7J"
         env:
           XEEL_API: 'https://api.xeel-dev.com' # Use the development API
           XEEL_APP: 'https://app.xeel-dev.com' # Use the development APP
