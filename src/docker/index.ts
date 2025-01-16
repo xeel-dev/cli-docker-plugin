@@ -71,6 +71,13 @@ export default class DockerEcosystemSupport
     return projects;
   }
 
+  private toVersionNumberAndType(version: string) {
+    const [versionNumber, ...versionTypeDescription] = version.split('-');
+    const versionType = versionTypeDescription.join('-');
+    const versionNumberFidelity = versionNumber.split('.').length;
+    return { versionNumber, versionNumberFidelity, versionType };
+  }
+
   public async listOutdatedDependencies(
     project: DockerProject,
   ): Promise<DockerDependency[]> {
@@ -104,8 +111,8 @@ export default class DockerEcosystemSupport
           version,
         };
         // Query the Docker API for the latest tag version, of the same image type
-        const [versionNumber, ...versionTypeDescription] = version.split('-');
-        const versionType = versionTypeDescription.join('-');
+        const { versionNumber, versionNumberFidelity, versionType } =
+          this.toVersionNumberAndType(version);
         const tags = await fetch(
           `https://registry.hub.docker.com/v2/namespaces/${namespace}/repositories/${imageName}/tags?page_size=100`,
         ).then((response) => response.json());
@@ -113,31 +120,44 @@ export default class DockerEcosystemSupport
           continue;
         }
         const excludedTags = ['latest', 'edge', 'stable', 'slim', 'current'];
-        const latestTags = tags.results
-          .filter(
-            (tag: any) =>
-              tag?.name?.endsWith(versionType) &&
-              !excludedTags.some((excluded) => tag?.name?.includes(excluded)) &&
-              tag?.name !== versionType,
-          )
+
+        // We only want to compare like for like tags, so for example, if the current tag is 1.23,
+        // we only want to compare against other minor version tags, like 1.25 or 1.26, not 1.23.1 or 1.23.5
+        // This also means we only want to compare against the latest tags of the same type, so if the current tag is 1.23,
+        // we only want to compare against tags without a type specifier, like 1.25, not 1.25-slim or 1.25-alpine
+        const comparableTags = tags.results
+          .filter((tag: any) => {
+            const {
+              versionType: tagVersionType,
+              versionNumberFidelity: tagVersionNumberFidelity,
+            } = this.toVersionNumberAndType(tag.name);
+            return (
+              !excludedTags.includes(tag.name) &&
+              versionType === tagVersionType &&
+              versionNumberFidelity === tagVersionNumberFidelity
+            );
+          })
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
-        if (tags.length === 0) {
+
+        if (comparableTags.length === 0) {
           continue;
         }
 
-        const latestTag = latestTags[latestTags.length - 1];
+        const latestTag = comparableTags[comparableTags.length - 1];
         const latest = {
           date: new Date(latestTag.last_updated),
           isDeprecated: latestTag.tag_status !== 'active',
           version: latestTag.name,
         };
-        dependencies.push({
-          name,
-          type: 'PROD',
-          ecosystem: 'DOCKER',
-          current,
-          latest,
-        });
+        if (latest.version !== current.version && latest.date > current.date) {
+          dependencies.push({
+            name,
+            type: 'PROD',
+            ecosystem: 'DOCKER',
+            current,
+            latest,
+          });
+        }
       }
     }
     return dependencies;
