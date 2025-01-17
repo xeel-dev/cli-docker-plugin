@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/xeel-dev/cli-docker-plugin/compare/v1.0.1...v1.0.2) (2025-01-17)
+
+
+### Bug Fixes
+
+* fixes non-numbered tags ([f902a3c](https://github.com/xeel-dev/cli-docker-plugin/commit/f902a3c64196adb43447860fe23b30eeda2b0369))
+
 ## [1.0.1](https://github.com/xeel-dev/cli-docker-plugin/compare/v1.0.0...v1.0.1) (2025-01-16)
 
 
