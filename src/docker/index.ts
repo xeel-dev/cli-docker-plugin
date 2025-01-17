@@ -128,13 +128,17 @@ export default class DockerEcosystemSupport
         const comparableTags = tags.results
           .filter((tag: any) => {
             const {
+              versionNumber: tagVersionNumber,
               versionType: tagVersionType,
               versionNumberFidelity: tagVersionNumberFidelity,
             } = this.toVersionNumberAndType(tag.name);
             return (
               !excludedTags.includes(tag.name) &&
               versionType === tagVersionType &&
-              versionNumberFidelity === tagVersionNumberFidelity
+              versionNumberFidelity === tagVersionNumberFidelity &&
+              // Make sure that both version numbers are numbers or strings, this handles tags like "alpine3.21"
+              isNaN(Number(tagVersionNumber.split('.')[0])) ===
+                isNaN(Number(versionNumber.split('.')[0]))
             );
           })
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
